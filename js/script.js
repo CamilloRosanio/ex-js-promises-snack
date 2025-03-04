@@ -6,7 +6,7 @@ function getPostTitle(id) {
     const promise = new Promise((resolve, reject) => {
         fetch(`https://dummyjson.com/posts/${id}`)
             .then(res => res.json())
-            .then(data => resolve(data))
+            .then(data => resolve(data.title))
             .catch(reject);
     })
     return promise;
@@ -21,14 +21,24 @@ function getPostTitle(id) {
 
 // Bonus
 
-function getPost(userId) {
+function getPost(id, userId) {
     const promise = new Promise((resolve, reject) => {
-        fetch(`https://dummyjson.com/users/${userId}`)
+        fetch(`https://dummyjson.com/posts/${id}`)
             .then(res => res.json())
-            .then(data => resolve(data))
+            .then(post => {
+                fetch(`https://dummyjson.com/users/${userId}`)
+                    .then(res => res.json())
+                    .then(user => {
+                        const result = {
+                            ...post,
+                            user,
+                        }
+                        resolve(result);
+                    })
+                    .catch(reject);
+            })
             .catch(reject);
-    })
-    return promise;
+    });
 };
 
 // INVOCA
@@ -47,14 +57,20 @@ function lanciaDado(numero) {
     return promise = new Promise((resolve, reject) => {
         console.log('Sto lanciando il dado...');
         setTimeout(() => {
-            const numeroDado = Math.floor(Math.random() * 6) + 1;
-            console.log('Risultato: ' + numeroDado);
-            if (numeroDado === numero) {
-                resolve('Hai vinto!');
+            const incastrato = Math.random() < 0.2;
+
+            if (incastrato) {
+                reject('Il dado si è incastrato!');
             } else {
-                reject('Hai perso. Non è uscito il numero su cui hai scommesso.')
+                const numeroDado = Math.floor(Math.random() * 6) + 1;
+                console.log('Risultato: ' + numeroDado);
+                if (numeroDado === numero) {
+                    resolve('Hai vinto!');
+                } else {
+                    reject('Hai perso. Non è uscito il numero su cui hai scommesso.')
+                }
             }
-        }, 2000)
+        }, 3000)
     });
 }
 
@@ -67,24 +83,29 @@ function lanciaDado(numero) {
 // Bonus
 
 function creaLanciaDadoClosure() {
-    let ultimoLancio = 0;
+    let ultimoLancio = null;
     return function lanciaDadoClosure(numero) {
         console.log('Ultimo lancio: ' + ultimoLancio);
-        return new Promise((resolve, reject) => {
+        return promise = new Promise((resolve, reject) => {
             console.log('Sto lanciando il dado...');
             setTimeout(() => {
-                const numeroDado = Math.floor(Math.random() * 6) + 1;
-                console.log('Risultato: ' + numeroDado);
-                if (numeroDado === ultimoLancio) {
-                    console.log('Incredibile! Stesso numero più volte di fila!');
-                }
-                if (numeroDado === numero) {
-                    resolve('Hai vinto!');
+                if (Math.random() < 0.2) {
+                    ultimoLancio = null;
+                    reject('Il dado si è incastrato!');
                 } else {
-                    reject('Hai perso. Non è uscito il numero su cui hai scommesso.');
+                    const numeroDado = Math.floor(Math.random() * 6) + 1;
+                    console.log('Risultato: ' + numeroDado);
+                    if (numeroDado === ultimoLancio) {
+                        console.log('Incredibile! Stesso numero più volte di fila!');
+                    }
+                    if (numeroDado === numero) {
+                        resolve('Hai vinto!');
+                    } else {
+                        reject('Hai perso. Non è uscito il numero su cui hai scommesso.');
+                    }
+                    ultimoLancio = numeroDado;
                 }
-                ultimoLancio = numeroDado;
-            }, 1000);
+            }, 3000)
         });
     };
 }
