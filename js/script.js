@@ -21,12 +21,12 @@ function getPostTitle(id) {
 
 // Bonus
 
-function getPost(id, userId) {
+function getPost(id) {
     const promise = new Promise((resolve, reject) => {
         fetch(`https://dummyjson.com/posts/${id}`)
             .then(res => res.json())
             .then(post => {
-                fetch(`https://dummyjson.com/users/${userId}`)
+                fetch(`https://dummyjson.com/users/${post.userId}`)
                     .then(res => res.json())
                     .then(user => {
                         const result = {
